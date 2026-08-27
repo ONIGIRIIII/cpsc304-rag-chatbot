@@ -1,79 +1,84 @@
 # CPSC 304 RAG Chatbot
 
-A local, free chatbot that answers questions using your CPSC 304 lecture slides.
-Everything runs on your machine — no API keys, no per-question charges.
+A little study assistant that actually knows what's in my CPSC 304 lecture slides.
+Ask it something and it digs through the decks and answers based on what's
+actually there, instead of me scrolling through 500 slides at 1am before a quiz.
 
-## Stack
+Everything runs locally on my own machine, so there's no OpenAI/Claude API key
+and no bill at the end of the month.
 
-- **LLM**: [Ollama](https://ollama.com) running `llama3.1:8b` locally
-- **Embeddings**: `sentence-transformers` (`all-MiniLM-L6-v2`), runs on CPU
-- **Vector store**: `chromadb`, stored on disk in `data/chroma_db/`
-- **Backend + web UI**: FastAPI, served at `http://localhost:8000`
+## How it works
 
-## First-time setup
+- Ollama runs a small model (`llama3.1:8b`) locally to write the actual answers
+- Slides get split into per-slide chunks and turned into embeddings with `sentence-transformers`
+- Those embeddings sit in a local Chroma database on disk
+- FastAPI serves the chat page and the API from one process at `localhost:8000`
 
-1. **Install Python 3.12** (if not already installed):
-   ```
-   winget install Python.Python.3.12
-   ```
-2. **Install Ollama** (if not already installed):
-   ```
-   winget install Ollama.Ollama
-   ```
-   Open a *new* terminal afterward so PATH updates take effect, then verify:
-   ```
-   ollama --version
-   ```
-3. **Pull the model** (one-time, ~4.7GB download):
-   ```
-   ollama pull llama3.1:8b
-   ```
-   Sanity check that your GPU is being used:
-   ```
-   ollama run llama3.1:8b "Say hello"
-   ```
-   The first response may be slow while the model loads; look at the terminal
-   output for a mention of your GPU/CUDA to confirm GPU acceleration is active.
-   Ollama runs as a background service after install — you don't need to start
-   it manually.
+Nothing here calls out to the internet except the one-time Ollama model
+download. Your slides never leave your computer.
 
-   If `llama3.1:8b` ever feels too slow (e.g. on battery), a lighter fallback is:
-   ```
-   ollama pull llama3.2:3b
-   ```
-   and set `OLLAMA_MODEL = "llama3.2:3b"` in `src/config.py`.
+## Setting it up (first time only)
 
-4. The Python virtual environment and dependencies are created automatically
-   the first time you run `run_ingest.ps1` or `run_server.ps1` — no manual
-   `pip install` needed.
+Need Python and Ollama if you don't already have them:
 
-## Day-to-day usage
+```
+winget install Python.Python.3.12
+winget install Ollama.Ollama
+```
 
-1. Drop new lecture slide PDFs into the `Slides\` folder (subfolders are fine).
-2. Embed the slides (only new/changed PDFs are processed each time):
-   ```
-   .\run_ingest.ps1
-   ```
-3. Start the chatbot server:
-   ```
-   .\run_server.ps1
-   ```
-4. Open **http://localhost:8000** in your browser and start asking questions.
-   Answers stream in and are followed by a "Sources" line listing which deck
-   and slide the answer came from.
+Open a fresh terminal after that (PATH won't update in the one you're in), then
+grab the model:
 
-To force a full re-embed from scratch (e.g. after changing the chunking logic):
+```
+ollama pull llama3.1:8b
+```
+
+That's about a 4.7GB download. Once it's done, try:
+
+```
+ollama run llama3.1:8b "Say hello"
+```
+
+and check the output mentions your GPU/CUDA somewhere — that's how you know
+it's not silently falling back to slow CPU inference. Ollama just runs quietly
+in the background after this, no need to start it manually each time.
+
+Running low on patience or on battery? `llama3.2:3b` is a smaller, faster
+model that trades off some quality:
+
+```
+ollama pull llama3.2:3b
+```
+
+then change `OLLAMA_MODEL` in `src/config.py` to match.
+
+You don't need to touch Python venvs or pip yourself — `run_ingest.ps1` and
+`run_server.ps1` both set that up the first time you run them.
+
+## Using it
+
+1. Drop PDF slide decks into `Slides\` (subfolders are fine)
+2. Run `.\run_ingest.ps1` — only new or changed PDFs get embedded, so this is
+   fast after the first run
+3. Run `.\run_server.ps1`
+4. Open `http://localhost:8000` and start asking questions
+
+Each answer streams in and lists which deck/slide it pulled from underneath.
+
+If you ever change the chunking logic and want to start the vector store
+over from scratch:
+
 ```
 .\run_ingest.ps1 --rebuild
 ```
 
-## Project structure
+## Layout
 
 ```
-Slides/              your PDF lecture decks
-data/                Chroma vector store + ingest manifest (auto-created)
-src/                 ingestion, retrieval, RAG, and FastAPI server code
-web/                 chat UI (HTML/CSS/JS)
-run_ingest.ps1        embed new/changed slides
-run_server.ps1        start the local web server
+Slides/           your PDF lecture decks
+data/              vector store + ingest cache (created automatically)
+src/               ingestion, retrieval, and the FastAPI server
+web/               the chat page itself
+run_ingest.ps1     re-embed new/changed slides
+run_server.ps1     start the server
 ```
