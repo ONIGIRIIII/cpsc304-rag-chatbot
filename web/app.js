@@ -187,11 +187,8 @@ sidebarToggle.addEventListener("click", () => {
 });
 newChatBtn.addEventListener("click", startNewChat);
 
-// Restore the most recent conversation (if any) on page load.
-if (sessions.length > 0) {
-  currentSession = sessions[0];
-  renderSessionMessages(currentSession);
-}
+// Always start on the empty-state screen; a conversation only loads when
+// the user explicitly picks "New chat" or a past session from the sidebar.
 renderSessionList();
 
 // ---- Chat submit ----

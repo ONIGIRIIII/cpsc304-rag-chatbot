@@ -322,6 +322,8 @@ header {
 .session-item {
   display: block;
   width: 100%;
+  height: auto;
+  flex-shrink: 0;
   text-align: left;
   padding: 0.55rem 0.7rem;
   border-radius: 10px;
@@ -330,6 +332,7 @@ header {
   color: var(--fg);
   cursor: pointer;
   font-family: inherit;
+  line-height: 1.3;
 }
 
 .session-item:hover { background: var(--bg); }
