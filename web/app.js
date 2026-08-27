@@ -3,8 +3,7 @@ const main = document.querySelector("main");
 const form = document.getElementById("chat-form");
 const input = document.getElementById("question");
 const themeToggle = document.getElementById("theme-toggle");
-const historyToggle = document.getElementById("history-toggle");
-const sidebarBackdrop = document.getElementById("sidebar-backdrop");
+const sidebarToggle = document.getElementById("sidebar-toggle");
 const newChatBtn = document.getElementById("new-chat");
 const sessionListEl = document.getElementById("session-list");
 
@@ -161,7 +160,6 @@ function selectSession(id) {
   currentSession = session;
   renderSessionMessages(session);
   renderSessionList();
-  closeSidebar();
 }
 
 function startNewChat() {
@@ -170,27 +168,24 @@ function startNewChat() {
   chat.innerHTML = "";
   document.body.classList.remove("has-messages");
   renderSessionList();
-  closeSidebar();
   input.focus();
 }
 
-function openSidebar() {
-  renderSessionList();
-  document.body.classList.add("sidebar-open");
+function setSidebarCollapsed(collapsed) {
+  if (collapsed) {
+    document.documentElement.setAttribute("data-sidebar", "collapsed");
+    localStorage.setItem("sidebarCollapsed", "1");
+  } else {
+    document.documentElement.removeAttribute("data-sidebar");
+    localStorage.removeItem("sidebarCollapsed");
+  }
 }
 
-function closeSidebar() {
-  document.body.classList.remove("sidebar-open");
-}
-
-historyToggle.addEventListener("click", () => {
-  document.body.classList.contains("sidebar-open") ? closeSidebar() : openSidebar();
+sidebarToggle.addEventListener("click", () => {
+  const isCollapsed = document.documentElement.getAttribute("data-sidebar") === "collapsed";
+  setSidebarCollapsed(!isCollapsed);
 });
-sidebarBackdrop.addEventListener("click", closeSidebar);
 newChatBtn.addEventListener("click", startNewChat);
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeSidebar();
-});
 
 // Restore the most recent conversation (if any) on page load.
 if (sessions.length > 0) {
