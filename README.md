@@ -1,7 +1,8 @@
-# CPSC 304 RAG Chatbot
+# Local RAG Study Chatbot
 
-A little study assistant that actually knows what's in my CPSC 304 lecture slides.
-Ask it something and it digs through the decks and answers based on what's
+A little study assistant that actually knows what's in my lecture slides.
+I built it for CPSC 304, but it doesn't care what course the PDFs are from —
+ask it something and it digs through the decks and answers based on what's
 actually there, instead of me scrolling through 500 slides at 1am before a quiz.
 
 Everything runs locally on my own machine, so there's no OpenAI/Claude API key
