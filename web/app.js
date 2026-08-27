@@ -114,10 +114,13 @@ function renderSessionList() {
     const firstUserMsg = session.messages.find((m) => m.role === "user");
     const title = firstUserMsg ? firstUserMsg.text : "New conversation";
 
-    const item = document.createElement("button");
-    item.type = "button";
+    const item = document.createElement("div");
     item.className =
       "session-item" + (currentSession && session.id === currentSession.id ? " active" : "");
+
+    const mainBtn = document.createElement("button");
+    mainBtn.type = "button";
+    mainBtn.className = "session-main";
 
     const titleEl = document.createElement("div");
     titleEl.className = "session-title";
@@ -127,11 +130,69 @@ function renderSessionList() {
     timeEl.className = "session-time";
     timeEl.textContent = timeAgo(session.updatedAt);
 
-    item.appendChild(titleEl);
-    item.appendChild(timeEl);
-    item.addEventListener("click", () => selectSession(session.id));
+    mainBtn.appendChild(titleEl);
+    mainBtn.appendChild(timeEl);
+    mainBtn.addEventListener("click", () => selectSession(session.id));
+
+    const menuBtn = document.createElement("button");
+    menuBtn.type = "button";
+    menuBtn.className = "session-menu-btn";
+    menuBtn.setAttribute("aria-label", "Session options");
+    menuBtn.innerHTML =
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">' +
+      '<circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/>' +
+      "</svg>";
+
+    const menu = document.createElement("div");
+    menu.className = "session-menu";
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "session-delete";
+    deleteBtn.textContent = "Delete";
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteSession(session.id);
+    });
+    menu.appendChild(deleteBtn);
+
+    menuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const wasOpen = menu.classList.contains("open");
+      closeAllSessionMenus();
+      if (!wasOpen) {
+        menu.classList.add("open");
+        menuBtn.classList.add("menu-open");
+      }
+    });
+
+    item.appendChild(mainBtn);
+    item.appendChild(menuBtn);
+    item.appendChild(menu);
     sessionListEl.appendChild(item);
   }
+}
+
+function closeAllSessionMenus() {
+  sessionListEl
+    .querySelectorAll(".session-menu.open")
+    .forEach((m) => m.classList.remove("open"));
+  sessionListEl
+    .querySelectorAll(".session-menu-btn.menu-open")
+    .forEach((b) => b.classList.remove("menu-open"));
+}
+
+document.addEventListener("click", closeAllSessionMenus);
+
+function deleteSession(id) {
+  sessions = sessions.filter((s) => s.id !== id);
+  saveSessions();
+  if (currentSession && currentSession.id === id) {
+    currentSession = null;
+    chat.innerHTML = "";
+    document.body.classList.remove("has-messages");
+  }
+  renderSessionList();
 }
 
 function renderSessionMessages(session) {

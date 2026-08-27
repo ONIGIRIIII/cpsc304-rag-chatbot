@@ -320,23 +320,37 @@ header {
 }
 
 .session-item {
-  display: block;
+  position: relative;
+  display: flex;
+  align-items: center;
   width: 100%;
   height: auto;
   flex-shrink: 0;
+  gap: 0.1rem;
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+.session-item:hover,
+.session-item.active {
+  background: var(--bg);
+}
+
+.session-main {
+  flex: 1;
+  min-width: 0;
+  height: auto;
   text-align: left;
-  padding: 0.55rem 0.7rem;
+  padding: 0.55rem 0.2rem 0.55rem 0.7rem;
   border-radius: 10px;
   border: none;
-  background: transparent;
+  background: none;
   color: var(--fg);
   cursor: pointer;
   font-family: inherit;
   line-height: 1.3;
+  display: block;
 }
-
-.session-item:hover { background: var(--bg); }
-.session-item.active { background: var(--bg); }
 
 .session-title {
   font-size: 0.85rem;
@@ -349,6 +363,71 @@ header {
   font-size: 0.72rem;
   color: var(--muted);
   margin-top: 0.1rem;
+}
+
+.session-menu-btn {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  margin-right: 0.4rem;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.session-item:hover .session-menu-btn,
+.session-item.active .session-menu-btn,
+.session-menu-btn.menu-open {
+  opacity: 1;
+}
+
+.session-menu-btn:hover { background: var(--border); color: var(--fg); }
+
+.session-menu {
+  position: absolute;
+  top: calc(100% + 2px);
+  right: 0.3rem;
+  z-index: 5;
+  min-width: 130px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 0.3rem;
+  display: none;
+}
+
+.session-menu.open {
+  display: block;
+  animation: fade-in 0.12s ease both;
+}
+
+.session-delete {
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: left;
+  border: none;
+  background: none;
+  border-radius: 7px;
+  padding: 0.45rem 0.6rem;
+  color: var(--accent-3);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.session-delete:hover {
+  background: color-mix(in srgb, var(--accent-3) 14%, transparent);
 }
 
 .session-empty {
